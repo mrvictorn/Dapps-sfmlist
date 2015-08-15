@@ -1,0 +1,22 @@
+<template name="toplistmovies">
+    <table class="table table-bordered table-hover vtable">
+        {{#if hasFilms}}
+            <thead>
+                <tr>
+                    <th> # </th>
+                    <th> Film </th>
+                    <th> Bids, Mwei </th>
+                </tr>
+            </thead>
+            <tbody>
+               {{#each films}}
+                    <tr>
+                        <td>{{position}}</td>
+                        <td>{{filmName}}</td>
+                        <td>{{score}}</td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        {{/if}}
+    </table>
+</template>

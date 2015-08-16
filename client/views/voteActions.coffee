@@ -9,7 +9,7 @@ Template.voteActions.events
         if err
           sAlert.error err.toString()
         else
-          sAlert.success  'Sent '+amount+ ' wei for '+ film
+          sAlert.success  'Sent '+amount/1000000+ ' Mwei for '+ film
           topFilmsList.reload()
     return
   'click #downVote': (e) ->
@@ -22,7 +22,7 @@ Template.voteActions.events
         if err
           sAlert.error err.toString()
         else
-          sAlert.success  'Sent '+amount+ ' wei for '+ film
+          sAlert.success  'Sent '+amount/1000000+ ' Mwei for '+ film
           topFilmsList.reload()
   'change #claim': (e) ->
     console.log @filmName

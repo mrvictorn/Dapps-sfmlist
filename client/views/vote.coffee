@@ -9,7 +9,7 @@ Template.vote.events
         if err
           sAlert.error err.toString()
         else
-          sAlert.success  'Sent '+amount+ ' wei for '+ film
+          sAlert.success  'Sent '+amount+ ' Mwei for '+ film
           topFilmsList.reload()
     return
 

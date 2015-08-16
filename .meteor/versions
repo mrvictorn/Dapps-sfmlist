@@ -18,6 +18,7 @@ ethereum:elements@0.4.1
 ethereum:tools@0.2.7
 ethereum:web3@0.12.2
 fastclick@1.0.3
+fortawesome:fontawesome@4.4.0
 frozeman:animation-helper@0.2.6
 frozeman:persistent-minimongo@0.1.4
 frozeman:storage@0.1.8

@@ -1,3 +1,4 @@
+###
 Meteor.methods
   getFilmList: ->
     mCount = sciFiContract.movie_num()
@@ -10,3 +11,6 @@ Meteor.methods
       )
     _addFilm ind for ind in [0..mCount-1]
     return list
+
+
+###

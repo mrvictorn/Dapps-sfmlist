@@ -1,13 +1,20 @@
 Template.vote.events
-  'submit .vote': (event)->
-    event.preventDefault()
+  'click #vote': (event)->
     address = TemplateVar.getFrom '.dapp-address-input .sender-address', 'value'
-    amount = parseInt event.target.amount.value
-    film = event.target.film.value
+    amount = parseInt document.getElementById("amount").value
+    film = document.getElementById("newFilmName").value
     if (amount && film && address )
-      actions.voteForMovie address,film,amount, (err,data)->
+      actions.voteForMovie address,film,amount*1000000, (err,data)->
         console.log err,data
         if err
           sAlert.error err.toString()
-        else  topFilmsList.reload()
+        else
+          sAlert.success  'Sent '+amount+ ' wei for '+ film
+          topFilmsList.reload()
     return
+
+Template.vote.helpers
+  testAccount: ->
+    web3.eth.accounts[0]
+  testAccBalance: ->
+    web3.fromWei(web3.eth.getBalance(web3.eth.accounts[0]), "ether") + " ether"

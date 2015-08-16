@@ -1,15 +1,9 @@
 development:
-  SimpleStorage:
-    args:
-      - 100
   SciFiMovies:
     args:
       - 100
 
 staging:
-  SimpleStorage:
-    args:
-      - 100
   SciFiMovies:
     args:
       - 100

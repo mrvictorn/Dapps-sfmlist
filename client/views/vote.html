@@ -1,30 +1,35 @@
 <template name="vote">
-    <div class="row">
+    <div class="col-md-6">
         <h3>Vote for Your favorite Sci-Fi Movie!</h3>
-        How to vote: input film title, add some Eth and click Vote!<br/>
-        {{> dapp_addressInput placeholder="0x000000.." class="sender-address" value='0x92629b497cb2a870668de1ee8a6537ead02205f8'}}
-        <small> use Your eth address as source of Eth</small>
+        use Your eth address as source of Wei
+        {{> dapp_addressInput placeholder="0x000000.." class="sender-address" value=testAccount}}
+        <br/><small> You can use {{testAccount}} to test app,<br/> curr balance: {{testAccBalance}}</small>
     </div>
-    <div class="row">
-        <form class="vote form-horizontal col-md-6" role="form">
+    <div class="col-md-6">
+        How to vote: input film title, add some Wei and click Vote! button<br/>
+        Or click <span class='control-button'><i class="fa fa-thumbs-o-up fa-2x"></i></span> to add 1MWeis to film vote<br/>
+        <span class='control-button '><i class="fa fa-thumbs-o-down fa-2x"></i></span>
+        to downvote (will subsctruct 1MWeis and spread to other films)<br/>
+        or just claim by clicking
+        <span class='control-button '><i class="fa fa-hand-rock-o fa-2x"></i></span>
+        <small>this feature is not implemented yet!</small>
+        <div class="vote form-horizontal " >
             <div class="form-group">
-                <label for="inputType" class="col-md-2 control-label">Film title:</label>
+                <label for="inputType" class="col-md-3 control-label">New film title:</label>
                 <div class="col-md-7">
-                    <input type="text" class="form-control" name="film" placeholder='Film'>
+                    <input type="text" class="form-control" id="newFilmName" name="film" placeholder='Film'>
                 </div>
             </div>
             <div class="form-group">
                 <div class="">
-                    <div class="form-group row">
-                        <label for="inputKey" class="col-md-3 control-label">amount in Wei</label>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control" name="amount"   placeholder='10000 Wei'>
-                        </div>
-                        <button type="submit" id="submitBtn" class="btn btn-primary col-md-3">Vote!</button>
+                    <label for="inputKey" class="col-md-3 control-label">amount in MWei</label>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="amount" name="amount"   placeholder='1 MWei'>
                     </div>
+                    <button id="vote" class="btn btn-primary col-md-3">Add new and Vote!</button>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 

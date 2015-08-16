@@ -6,6 +6,7 @@
                     <th> # </th>
                     <th> Film </th>
                     <th> Bids, Mwei </th>
+                    <th> Actions </th>
                 </tr>
             </thead>
             <tbody>
@@ -14,6 +15,7 @@
                         <td>{{position}}</td>
                         <td>{{filmName}}</td>
                         <td>{{score}}</td>
+                        <td>{{> voteActions}}</td>
                     </tr>
                 {{/each}}
             </tbody>

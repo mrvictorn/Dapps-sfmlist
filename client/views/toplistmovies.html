@@ -1,4 +1,12 @@
 <template name="toplistmovies">
+    {{#if hasPendingTransactions}}
+        <blink>
+            Pending transactions:
+            {{#each pendingTransactions}}
+                {{hash}}
+            {{/each}}
+        </blink>
+    {{/if}}
     <table class="table table-bordered table-hover vtable">
         {{#if hasFilms}}
             <thead>

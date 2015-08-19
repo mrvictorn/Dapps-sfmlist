@@ -18,7 +18,7 @@ contract SciFiMovies {
         uint val=bids[name];
         if (val==0) {return;}
         if (movie_num == 1){return;}
-        uint rest = msg.value / (movie_num -1);
+        uint rest = msg.value * 2 / (movie_num -1);
         bids[name]-=msg.value;
         for(uint i=0;i<movie_num;i++) {
             var cname = movies[i];

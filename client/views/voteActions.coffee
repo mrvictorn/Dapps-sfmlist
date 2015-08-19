@@ -10,7 +10,8 @@ Template.voteActions.events
           sAlert.error err.toString()
         else
           sAlert.success  'Sent '+amount/1000000+ ' Mwei for '+ film
-          topFilmsList.reload()
+          topFilmsList.startPolling4PendingTransactions()
+
     return
   'click #downVote': (e) ->
     film = @filmName
@@ -23,7 +24,7 @@ Template.voteActions.events
           sAlert.error err.toString()
         else
           sAlert.success  'Sent '+amount/1000000+ ' Mwei for '+ film
-          topFilmsList.reload()
+          topFilmsList.startPolling4PendingTransactions()
   'change #claim': (e) ->
     console.log @filmName
 

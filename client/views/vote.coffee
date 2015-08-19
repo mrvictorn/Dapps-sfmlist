@@ -10,7 +10,8 @@ Template.vote.events
           sAlert.error err.toString()
         else
           sAlert.success  'Sent '+amount+ ' Mwei for '+ film
-          topFilmsList.reload()
+          topFilmsList.startPolling4PendingTransactions()
+
     return
 
 Template.vote.helpers

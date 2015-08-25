@@ -10,4 +10,7 @@
 #
 
 
-deployedContracts = new Mongo.Collection 'deployedContracts'
+Meteor.subscribe 'deployedContracts'
+
+
+@deployedContracts = new Mongo.Collection 'deployedContracts'

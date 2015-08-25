@@ -29,6 +29,3 @@ contract SciFiMovies {
         return "Downvote accepted";
     }
 }
-
-contract Test1 {
-}

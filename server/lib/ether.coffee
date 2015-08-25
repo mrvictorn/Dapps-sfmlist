@@ -1,5 +1,5 @@
 PATH_CONTRACTS_DIR = '../../../../../contracts'
-DEPLOY_GAS = 300000
+DEPLOY_GAS = 400000
 NODE_URL = 'http://localhost:8101'
 Fiber = Npm.require 'fibers'
 
@@ -15,24 +15,24 @@ _getSolsList = () ->
 
 
 #FYI collection.deployedContracts contains
-# deployedcontract =
-#   sourceFileName:
-#   sourceFileHash:
-#   deployedVersion:
-#   compiledVersion:
-#   contacts: [{
+# deployedcontract = [
+#    {
 #     name:
-#     deployedAddress:
+#     address:
 #     code:
+#     codeHash:
+#     deployVersion:
 #     abi:
-#     isDeployed:
-#     isCompiled:
+#   },...
+# ]
 #
-#
+
 
 
 @Ether =
-  deployedContracts: new Mongo.Collection 'deployedContracts'
+  deployedContracts: {} # to use on server side
+  systemContracts: new Mongo.Collection 'deployedContracts' # to use on client side (abi,code,address)
+  systemContractsFiles: new Mongo.Collection 'contractsFiles'
   connect2Node: (nodeUrl) ->
     web3.setProvider new web3.providers.HttpProvider(nodeUrl)
     if web3.isConnected()
@@ -57,7 +57,8 @@ _getSolsList = () ->
         if not myContract.address
           console.log 'Contact ', contractStruct.name, ' got transaction hash:', myContract.transactionHash
         else
-          contractStruct.address = address
+          contractStruct.address = myContract.address
+          contractStruct.contract = myContract
           cb err, contractStruct
     return
 
@@ -76,18 +77,15 @@ _getSolsList = () ->
       if fileBuff
         solFilesList[i].sourceFileHash = CryptoJS.MD5(fileBuff).toString()
         solFilesList[i].source = fileBuff
-
-    oldFiles = Ether.deployedContracts.find({sourceFileName: {$in: solFileNames}}).fetch()
     debugger
+    oldFiles = Ether.systemContractsFiles.find({type:'sol',sourceFileName: {$in: solFileNames}}).fetch()
+    oldContracts = Ether.systemContracts.find({type:'sol'}).fetch()
     files2BeCompiled = _.filter solFilesList, (oFile) ->
-      return true if not oFile.deployedAddress
-      return ! _.findWhere oldFiles, {sourceFileName: oFile.sourceFileName, sourceFileHash: oFile.sourceFileHash }
+      return not _.findWhere(oldFiles,{sourceFileName: oFile.fileName,sourceFileHash: oFile.sourceFileHash})
       # search for files with newhashes, and without
     if files2BeCompiled?.length and Ether.connect2Node(NODE_URL)
       ## we have some work here!
-      async.map files2BeCompiled,
-        (oFile,asyncCB) ->
-          file = oFile
+      async.map files2BeCompiled, (oFile,asyncCB) ->
           if oFile.source
             Ether.compileContract oFile.source, (err,compiled)->
               if err then asyncCB()
@@ -100,61 +98,66 @@ _getSolsList = () ->
                     code: compiledContr.code
                     name: contractName
                     abi: compiledContr.info?.abiDefinition
-                    isDeployed: false
                     isCompiled: true
-                asyncCB(null, {sourceFileName:oFile,contracts:contracts});
+                asyncCB(null, {type:'sol',sourceFileName:oFile.fileName,sourceFileHash:oFile.sourceFileHash, contracts:contracts});
               return
-                #deployedContracts.update
-                #  sourceFileName: file.sourceFileName
           else
             asyncCB()
-        , (err,data) ->
-          debugger
-          if err
-            return console.log 'Received error during compiling new contacts', err
-
-          async.map data, # iterate for files
-            (aFile, asyncCB) ->
-              arrContracts = aFile.
-              async.map arrContracts,
-                Ether.deployContract
+      ,
+        (err,data) ->
+          if err then return console.log 'Got error while compiling contracts',err
+          if not data?.length then return console.log 'Got no file contracts to re/deploy',data
+          ## saving here compiled files to collection
+          Fiber( ()->
+            data.forEach (file)->
+              Ether.systemContractsFiles.update {type:'sol',sourceFileName: file.sourceFileName},
+                $inc:
+                  compiledVersion: 1
+                $set:
+                  contacts:file.contracts
+                  sourceFileHash: file.sourceFileHash
               ,
-                (err,data) ->
-                 asyncCB(err,data)
-          ,
-            (err,data) ->
-              console.log 'Time to upsert data to collection',err,data
-              #TODO upsert data to collection
-          ###
-            Fiber( ()->
-            Ether.deployedContracts.update {sourceFileName: file.sourceFileName},
-              sourceFileHash: file.sourceFileHash
-              compiledVersion: 1
-              contacts:contracts
-            ,
-              upsert: true
+                upsert: true
           ).run()
-          console.log err,data
-          ###
+          debugger
+          contracts2Check = []
+          contracts2Check.push file.contracts for file in data
+          contracts2Check = _.flatten contracts2Check
+          console.log contracts2Check
+          contractNames = []
+          contracts2Check.forEach (oContract,i) ->
+            contractNames.push oContract.name
+            oContract.codeHash = CryptoJS.MD5(oContract.code).toString()
+          contracts2Check = _.uniq contracts2Check,(el)-> el.codeHash
+          oldContracts = _.filter oldContracts, (el)->
+            return true if not el.address  ## old, compiled but undeployed contracts
+            return false if _.indexOf(contractNames,el.name) == -1
+            return true
+          contracts2BeDeployed = _.filter contracts2Check, (oContract) ->
+            return not _.findWhere oldContracts, {codeHash: oContract.codeHash, name: oContract.name }
+
+          console.log contracts2BeDeployed
+          #check here for changed MD5(source) changed and not deployed contracts
+          contracts2BeDeployed.forEach (oContract)->
+            Ether.deployContract oContract ,(err,deployedContract) ->
+              if err then return console.log 'Received error while deploying contract ',err,oContract
+              Ether.deployedContracts[deployedContract.name] = deployedContract.contract
+              Fiber( ()->
+                Ether.systemContracts.update {type:'sol',name: deployedContract.name},
+                  $inc:
+                    deployVersion: 1
+                  $set:
+                    code: deployedContract.code
+                    abi: deployedContract.abi
+                    codeHash: deployedContract.codeHash
+                    address: deployedContract.address
+                ,
+                  upsert: true
+              ).run()
+              return
 
 
 
-
-
-
-###
-
-
-var contracts = Object.getOwnPropertyNames(compiled);
-contracts.forEach(function (contract) {
-var abiDefinition = compiled[contract];
-res.push(abiDefinition);
-});
-return res;
-}
-
-function deployAbiContract(abi, initiatorAddr,cb) {
-fContract = web3.eth.contract(abi.info.abiDefinition);
-fContract.new({data: abi.code, gas: 300000, from: initiatorAddr},cb);
-}
-###
+Meteor.publish 'deployedContracts', ()->
+  console.log 'publishing deployedContracts ', Ether.deployedContracts
+  return Ether.systemContracts.find {}

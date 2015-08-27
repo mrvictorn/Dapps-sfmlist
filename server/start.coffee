@@ -1,2 +1,2 @@
 Meteor.startup ()->
-  Ether.onStart()
+  EthContracts.bootstrap ## here we can provide some additional params!

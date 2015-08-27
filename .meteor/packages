@@ -24,3 +24,5 @@ jss:path
 raix:md5
 jparker:crypto-md5
 kwk:fibers
+raix:eventemitter
+matb33:collection-hooks

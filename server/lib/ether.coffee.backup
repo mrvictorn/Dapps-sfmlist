@@ -25,7 +25,7 @@ _getSolsList = () ->
 #     abi:
 #   },...
 # ]
-#
+
 
 
 
@@ -77,7 +77,6 @@ _getSolsList = () ->
       if fileBuff
         solFilesList[i].sourceFileHash = CryptoJS.MD5(fileBuff).toString()
         solFilesList[i].source = fileBuff
-    debugger
     oldFiles = Ether.systemContractsFiles.find({type:'sol',sourceFileName: {$in: solFileNames}}).fetch()
     oldContracts = Ether.systemContracts.find({type:'sol'}).fetch()
     files2BeCompiled = _.filter solFilesList, (oFile) ->
@@ -119,7 +118,6 @@ _getSolsList = () ->
               ,
                 upsert: true
           ).run()
-          debugger
           contracts2Check = []
           contracts2Check.push file.contracts for file in data
           contracts2Check = _.flatten contracts2Check
